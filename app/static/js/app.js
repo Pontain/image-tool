@@ -1,5 +1,4 @@
 let currentFile = null;
-let previewTimer = null;
 
 const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("fileInput");
@@ -96,17 +95,14 @@ qualitySlider.addEventListener("input", () => {
     qualityValue.textContent =
         qualitySlider.value;
 
+});
 
-    clearTimeout(previewTimer);
 
+qualitySlider.addEventListener("change", () => {
 
-    previewTimer = setTimeout(() => {
-
-        if (currentFile) {
-            previewWebp(currentFile);
-        }
-
-    }, 300);
+    if (currentFile) {
+        previewWebp(currentFile);
+    }
 
 });
 

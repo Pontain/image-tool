@@ -6,6 +6,7 @@ from PIL import Image
 def convert_to_webp(
     image_bytes: bytes,
     quality: int = 85,
+    method: int = 6,
 ) -> bytes:
 
     with Image.open(BytesIO(image_bytes)) as image:
@@ -19,7 +20,7 @@ def convert_to_webp(
             output,
             format="WEBP",
             quality=quality,
-            method=6,
+            method=method,
         )
 
         return output.getvalue()

@@ -62,6 +62,7 @@ async def convert_uploaded_image_to_webp(
         webp_bytes = convert_to_webp(
             image_bytes=image_bytes,
             quality=quality,
+            method=6,
         )
 
     except Exception:
@@ -108,6 +109,7 @@ async def preview_webp_conversion(
         webp_bytes = convert_to_webp(
             image_bytes=image_bytes,
             quality=quality,
+            method=0,
         )
 
     except Exception:
