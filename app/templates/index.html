@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Image Tool</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+
+<body>
+
+    <main class="app">
+
+        <header class="app-header">
+            <h1>Image Tool</h1>
+            <p>Konvertera, optimera och bearbeta bilder för webben.</p>
+        </header>
+
+        <section class="workspace">
+
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden>
+
+                <div class="drop-zone-content">
+                    <div class="drop-icon">🖼️</div>
+
+                    <h2>Släpp en bild här</h2>
+
+                    <p>
+                        eller klicka för att välja
+                    </p>
+
+                    <span>
+                        PNG • JPG • JPEG • WebP
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="preview-panel hidden" id="previewPanel">
+
+                <div class="image-preview">
+                    <img id="previewImage" src="" alt="Förhandsvisning">
+                </div>
+
+                <div class="image-info">
+                    <h2 id="fileName">
+                        Bild
+                    </h2>
+
+                    <div class="info-row">
+                        <span>Format</span>
+                        <strong id="fileType">-</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Upplösning</span>
+                        <strong id="imageDimensions">-</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Filstorlek</span>
+                        <strong id="fileSize">-</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Färgläge</span>
+                        <strong id="colorMode">-</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Transparens</span>
+                        <strong id="transparency">-</strong>
+                    </div>
+
+                    <div class="conversion-tools">
+
+                        <h3>Konvertera till WebP</h3>
+
+                        <div class="quality-control">
+
+                            <label for="qualitySlider">
+                                Kvalitet
+                            </label>
+
+                            <div class="quality-row">
+
+                                <input type="range" id="qualitySlider" min="1" max="100" value="85">
+
+                                <strong id="qualityValue">
+                                    85
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                        <div class="conversion-result hidden" id="conversionResult">
+                            <div class="result-column">
+                                <span>Original</span>
+                                <strong id="originalSizeResult">-</strong>
+                            </div>
+
+                            <div class="result-arrow">
+                                →
+                            </div>
+
+                            <div class="result-column">
+                                <span>WebP</span>
+                                <strong id="webpSizeResult">-</strong>
+                            </div>
+
+                            <div class="result-saving">
+                                <span>Minskning</span>
+                                <strong id="savingResult">-</strong>
+                            </div>
+                        </div>
+
+                        <button type="button" id="convertWebp" class="primary-button">
+                            Konvertera till WebP
+                        </button>
+
+                    </div>
+
+                    <button type="button" id="chooseNewImage">
+                        Välj annan bild
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+
+</body>
+
+</html>
