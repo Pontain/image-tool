@@ -178,7 +178,37 @@ body {
     align-items: center;
     justify-content: center;
 
-    background: var(--preview-bg);
+    background-color: #ffffff;
+
+    background-image:
+        linear-gradient(
+            45deg,
+            #d5dbe3 25%,
+            transparent 25%
+        ),
+        linear-gradient(
+            -45deg,
+            #d5dbe3 25%,
+            transparent 25%
+        ),
+        linear-gradient(
+            45deg,
+            transparent 75%,
+            #d5dbe3 75%
+        ),
+        linear-gradient(
+            -45deg,
+            transparent 75%,
+            #d5dbe3 75%
+        );
+
+    background-size: 24px 24px;
+
+    background-position:
+        0 0,
+        0 12px,
+        12px -12px,
+        -12px 0;
 
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -349,6 +379,113 @@ body {
     margin-bottom: 18px;
 }
 
+
+/* -------------------------
+   TRANSPARENCY TOOLS
+------------------------- */
+
+.transparency-tools {
+    margin-top: 30px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid var(--border);
+}
+
+
+.transparency-tools h3 {
+    margin-top: 0;
+    margin-bottom: 18px;
+}
+
+
+.transparency-control {
+    padding: 18px;
+
+    background: #e5ebf3;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    margin-bottom: 16px;
+}
+
+
+.color-control {
+    margin-bottom: 20px;
+}
+
+
+.color-control label,
+.tolerance-control label {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: var(--text);
+
+    font-weight: 500;
+}
+
+
+.color-row {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.color-row input[type="color"] {
+    width: 48px;
+    height: 38px;
+
+    padding: 2px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: var(--surface);
+
+    cursor: pointer;
+}
+
+
+.color-row span {
+    font-family: monospace;
+
+    color: var(--text-muted);
+}
+
+
+.secondary-action-button {
+    width: 100%;
+
+    margin-bottom: 10px;
+
+    padding: 12px 18px;
+
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+
+    background: var(--primary-soft);
+    color: var(--primary);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.secondary-action-button:hover {
+    background: #ddd8ff;
+}
+
+
+.transparency-download {
+    margin-top: 2px;
+}
 
 /* -------------------------
    QUALITY

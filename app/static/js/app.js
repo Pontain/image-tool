@@ -1,5 +1,8 @@
 let currentFile = null;
 
+let originalImageUrl = null;
+let transparentPreviewUrl = null;
+
 const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("fileInput");
 
@@ -48,7 +51,26 @@ const resizeModeInputs =
         'input[name="resizeMode"]'
     );
 
+const transparentColor =
+    document.getElementById("transparentColor");
 
+const transparentColorValue =
+    document.getElementById("transparentColorValue");
+
+const toleranceSlider =
+    document.getElementById("toleranceSlider");
+
+const toleranceValue =
+    document.getElementById("toleranceValue");
+
+const previewTransparency =
+    document.getElementById("previewTransparency");
+
+const showOriginal =
+    document.getElementById("showOriginal");
+
+const downloadTransparent =
+    document.getElementById("downloadTransparent");
 
 dropZone.addEventListener("click", () => {
     fileInput.click();
@@ -125,6 +147,247 @@ maxWidth.addEventListener("change", () => {
     }
 
 });
+
+transparentColor.addEventListener(
+    "input",
+    () => {
+
+        transparentColorValue.textContent =
+            transparentColor.value.toUpperCase();
+
+    }
+);
+
+previewTransparency.addEventListener(
+    "click",
+    async () => {
+
+        if (!currentFile) {
+            return;
+        }
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            currentFile
+        );
+
+
+        const color =
+            transparentColor.value.replace("#", "");
+
+        const tolerance =
+            toleranceSlider.value;
+
+
+        previewTransparency.disabled = true;
+
+        previewTransparency.textContent =
+            "Bearbetar...";
+
+
+        try {
+
+            const response = await fetch(
+                `/api/images/transparent/preview?color=${color}&tolerance=${tolerance}`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    "Kunde inte skapa transparens-preview."
+                );
+            }
+
+
+            const blob =
+                await response.blob();
+
+
+            if (transparentPreviewUrl) {
+                URL.revokeObjectURL(
+                    transparentPreviewUrl
+                );
+            }
+
+
+            transparentPreviewUrl =
+                URL.createObjectURL(blob);
+
+
+            previewImage.src =
+                transparentPreviewUrl;
+
+
+            showOriginal.classList.remove(
+                "hidden"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Kunde inte skapa transparens-preview."
+            );
+
+        }
+
+        finally {
+
+            previewTransparency.disabled = false;
+
+            previewTransparency.textContent =
+                "Förhandsvisa transparens";
+
+        }
+
+    }
+);
+
+showOriginal.addEventListener(
+    "click",
+    () => {
+
+        if (!originalImageUrl) {
+            return;
+        }
+
+        previewImage.src =
+            originalImageUrl;
+
+        showOriginal.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+downloadTransparent.addEventListener(
+    "click",
+    async () => {
+
+        if (!currentFile) {
+            return;
+        }
+
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            currentFile
+        );
+
+
+        const color =
+            transparentColor.value.replace("#", "");
+
+        const tolerance =
+            toleranceSlider.value;
+
+
+        downloadTransparent.disabled = true;
+
+        downloadTransparent.textContent =
+            "Skapar PNG...";
+
+
+        try {
+
+            const response = await fetch(
+                `/api/images/transparent?color=${color}&tolerance=${tolerance}`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    "Kunde inte skapa transparent PNG."
+                );
+            }
+
+
+            const blob =
+                await response.blob();
+
+            const downloadUrl =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+
+            const filenameWithoutExtension =
+                currentFile.name.replace(
+                    /\.[^/.]+$/,
+                    ""
+                );
+
+
+            link.href = downloadUrl;
+
+            link.download =
+                `${filenameWithoutExtension}-transparent.png`;
+
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+
+            URL.revokeObjectURL(
+                downloadUrl
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Kunde inte skapa transparent PNG."
+            );
+
+        }
+
+        finally {
+
+            downloadTransparent.disabled = false;
+
+            downloadTransparent.textContent =
+                "Spara transparent PNG";
+
+        }
+
+    }
+);
+
+toleranceSlider.addEventListener(
+    "input",
+    () => {
+
+        toleranceValue.textContent =
+            toleranceSlider.value;
+
+    }
+);
 
 convertWebp.addEventListener("click", async () => {
 
@@ -300,9 +563,22 @@ async function handleImage(file) {
 
     currentFile = file;
 
-    const imageUrl = URL.createObjectURL(file);
+    if (originalImageUrl) {
+        URL.revokeObjectURL(originalImageUrl);
+    }
 
-    previewImage.src = imageUrl;
+    if (transparentPreviewUrl) {
+        URL.revokeObjectURL(transparentPreviewUrl);
+        transparentPreviewUrl = null;
+    }
+
+    originalImageUrl =
+        URL.createObjectURL(file);
+
+    previewImage.src =
+        originalImageUrl;
+
+    showOriginal.classList.add("hidden");
 
     fileName.textContent = file.name;
     fileType.textContent = getReadableFormat(file);

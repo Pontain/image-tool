@@ -115,6 +115,65 @@
 
                             </div>
 
+                            <div class="transparency-tools">
+
+                                <h3>Gör bakgrund transparent</h3>
+
+                                <div class="transparency-control">
+
+                                    <div class="color-control">
+                                        <label for="transparentColor">
+                                            Bakgrundsfärg
+                                        </label>
+
+                                        <div class="color-row">
+                                            <input type="color" id="transparentColor" value="#ffffff">
+
+                                            <span id="transparentColorValue">
+                                                #FFFFFF
+                                            </span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="tolerance-control">
+
+                                        <label for="toleranceSlider">
+                                            Tolerans
+                                        </label>
+
+                                        <div class="quality-row">
+
+                                            <input type="range" id="toleranceSlider" min="0" max="100" value="30">
+
+                                            <strong id="toleranceValue">
+                                                30
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <button type="button" id="previewTransparency" class="secondary-action-button">
+                                    Förhandsvisa transparens
+                                </button>
+
+
+                                <button type="button" id="showOriginal" class="secondary-action-button hidden">
+                                    Visa original
+                                </button>
+
+
+                                <button type="button" id="downloadTransparent"
+                                    class="primary-button transparency-download">
+                                    Spara transparent PNG
+                                </button>
+
+                            </div>
+
                             <label for="qualitySlider">
                                 Kvalitet
                             </label>

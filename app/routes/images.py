@@ -2,6 +2,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.image_tools.analyzer import analyze_image
 from app.image_tools.converter import convert_to_webp
+from app.image_tools.transparency import make_color_transparent
 
 from fastapi.responses import Response
 
@@ -144,3 +145,117 @@ async def preview_webp_conversion(
         "saving_percent": round(saving_percent, 1),
         "quality": quality,
     }
+
+@router.post("/transparent")
+async def make_uploaded_image_transparent(
+    file: UploadFile = File(...),
+    color: str = "ffffff",
+    tolerance: int = 30,
+):
+    if not 0 <= tolerance <= 255:
+        raise HTTPException(
+            status_code=400,
+            detail="Toleransen måste vara mellan 0 och 255.",
+        )
+
+    try:
+        color = color.lstrip("#")
+
+        if len(color) != 6:
+            raise ValueError
+
+        target_color = (
+            int(color[0:2], 16),
+            int(color[2:4], 16),
+            int(color[4:6], 16),
+        )
+
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Ogiltig färg.",
+        )
+
+    image_bytes = await file.read()
+
+    try:
+        result_bytes = make_color_transparent(
+            image_bytes=image_bytes,
+            target_color=target_color,
+            tolerance=tolerance,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Kunde inte bearbeta bilden.",
+        )
+
+    original_name = file.filename or "image"
+
+    filename_without_extension = (
+        original_name.rsplit(".", 1)[0]
+    )
+
+    output_filename = (
+        f"{filename_without_extension}-transparent.png"
+    )
+
+    return Response(
+        content=result_bytes,
+        media_type="image/png",
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="{output_filename}"'
+        },
+    )
+
+@router.post("/transparent/preview")
+async def preview_transparent_image(
+    file: UploadFile = File(...),
+    color: str = "ffffff",
+    tolerance: int = 30,
+):
+    if not 0 <= tolerance <= 255:
+        raise HTTPException(
+            status_code=400,
+            detail="Toleransen måste vara mellan 0 och 255.",
+        )
+
+    try:
+        color = color.lstrip("#")
+
+        if len(color) != 6:
+            raise ValueError
+
+        target_color = (
+            int(color[0:2], 16),
+            int(color[2:4], 16),
+            int(color[4:6], 16),
+        )
+
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Ogiltig färg.",
+        )
+
+    image_bytes = await file.read()
+
+    try:
+        result_bytes = make_color_transparent(
+            image_bytes=image_bytes,
+            target_color=target_color,
+            tolerance=tolerance,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Kunde inte skapa förhandsvisning.",
+        )
+
+    return Response(
+        content=result_bytes,
+        media_type="image/png",
+    )
