@@ -43,6 +43,8 @@ async def analyze_uploaded_image(
 async def convert_uploaded_image_to_webp(
     file: UploadFile = File(...),
     quality: int = 85,
+    max_width: int | None = None,
+    resize_percent: int | None = None,
 ):
     if not 1 <= quality <= 100:
         raise HTTPException(
@@ -63,6 +65,8 @@ async def convert_uploaded_image_to_webp(
             image_bytes=image_bytes,
             quality=quality,
             method=6,
+            max_width=max_width,
+            resize_percent=resize_percent,
         )
 
     except Exception:
@@ -90,6 +94,8 @@ async def convert_uploaded_image_to_webp(
 async def preview_webp_conversion(
     file: UploadFile = File(...),
     quality: int = 85,
+    max_width: int | None = None,
+    resize_percent: int | None = None,
 ):
     if not 1 <= quality <= 100:
         raise HTTPException(
@@ -110,6 +116,8 @@ async def preview_webp_conversion(
             image_bytes=image_bytes,
             quality=quality,
             method=0,
+            max_width=max_width,
+            resize_percent=resize_percent,
         )
 
     except Exception:

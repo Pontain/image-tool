@@ -16,6 +16,9 @@ const chooseNewImage = document.getElementById("chooseNewImage");
 const colorMode = document.getElementById("colorMode");
 const transparency = document.getElementById("transparency");
 
+const maxWidth =
+    document.getElementById("maxWidth");
+
 const conversionResult =
     document.getElementById("conversionResult");
 
@@ -36,6 +39,14 @@ const qualityValue =
 
 const convertWebp =
     document.getElementById("convertWebp");
+
+const resizePercent =
+    document.getElementById("resizePercent");
+
+const resizeModeInputs =
+    document.querySelectorAll(
+        'input[name="resizeMode"]'
+    );
 
 
 
@@ -106,6 +117,15 @@ qualitySlider.addEventListener("change", () => {
 
 });
 
+
+maxWidth.addEventListener("change", () => {
+
+    if (currentFile) {
+        previewWebp(currentFile);
+    }
+
+});
+
 convertWebp.addEventListener("click", async () => {
 
     if (!currentFile) {
@@ -121,8 +141,29 @@ convertWebp.addEventListener("click", async () => {
     );
 
 
-    const quality =
-        qualitySlider.value;
+    const quality = qualitySlider.value;
+
+    const resize =
+        getResizeSettings();
+
+    let convertUrl =
+        `/api/images/convert/webp?quality=${quality}`;
+
+    if (
+        resize.mode === "width" &&
+        resize.value
+    ) {
+        convertUrl +=
+            `&max_width=${resize.value}`;
+    }
+
+    if (
+        resize.mode === "percent" &&
+        resize.value
+    ) {
+        convertUrl +=
+            `&resize_percent=${resize.value}`;
+    }
 
 
     convertWebp.disabled = true;
@@ -134,7 +175,7 @@ convertWebp.addEventListener("click", async () => {
     try {
 
         const response = await fetch(
-            `/api/images/convert/webp?quality=${quality}`,
+            convertUrl,
             {
                 method: "POST",
                 body: formData,
@@ -213,14 +254,50 @@ convertWebp.addEventListener("click", async () => {
 
 });
 
+resizeModeInputs.forEach((input) => {
+
+    input.addEventListener("change", () => {
+
+        const mode = input.value;
+
+        if (mode === "percent") {
+
+            resizePercent.disabled = false;
+            maxWidth.disabled = true;
+
+        }
+
+        else {
+
+            resizePercent.disabled = true;
+            maxWidth.disabled = false;
+
+        }
+
+        if (currentFile) {
+            previewWebp(currentFile);
+        }
+
+    });
+
+});
+
+resizePercent.addEventListener("change", () => {
+
+    if (currentFile) {
+        previewWebp(currentFile);
+    }
+
+});
+
 async function handleImage(file) {
 
-    
+
     if (!file.type.startsWith("image/")) {
         alert("Filen måste vara en bild.");
         return;
     }
-    
+
     currentFile = file;
 
     const imageUrl = URL.createObjectURL(file);
@@ -345,31 +422,79 @@ async function analyzeImage(file) {
 
 }
 
+function getResizeSettings() {
+
+    const resizeMode =
+        document.querySelector(
+            'input[name="resizeMode"]:checked'
+        ).value;
+
+
+    if (resizeMode === "percent") {
+
+        return {
+            mode: "percent",
+            value: resizePercent.value,
+        };
+
+    }
+
+
+    return {
+        mode: "width",
+        value: maxWidth.value,
+    };
+
+}
+
 async function previewWebp(file) {
 
-    const formData =
-        new FormData();
+    const formData = new FormData();
 
     formData.append(
         "file",
         file
     );
 
+    const quality = qualitySlider.value;
+    const resize =
+        getResizeSettings();
 
-    const quality =
-        qualitySlider.value;
 
+    let previewUrl =
+        `/api/images/convert/webp/preview?quality=${quality}`;
+
+
+    if (
+        resize.mode === "width" &&
+        resize.value
+    ) {
+
+        previewUrl +=
+            `&max_width=${resize.value}`;
+
+    }
+
+
+    if (
+        resize.mode === "percent" &&
+        resize.value
+    ) {
+
+        previewUrl +=
+            `&resize_percent=${resize.value}`;
+
+    }
 
     try {
 
         const response = await fetch(
-            `/api/images/convert/webp/preview?quality=${quality}`,
+            previewUrl,
             {
                 method: "POST",
                 body: formData,
             }
         );
-
 
         if (!response.ok) {
             throw new Error(
@@ -377,10 +502,7 @@ async function previewWebp(file) {
             );
         }
 
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         originalSizeResult.textContent =
             formatFileSize(
@@ -395,7 +517,6 @@ async function previewWebp(file) {
         savingResult.textContent =
             `${data.saving_percent} %`;
 
-
         conversionResult.classList.remove(
             "hidden"
         );
@@ -409,3 +530,4 @@ async function previewWebp(file) {
     }
 
 }
+
