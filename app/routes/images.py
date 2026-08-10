@@ -3,6 +3,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from app.image_tools.analyzer import analyze_image
 from app.image_tools.converter import convert_to_webp
 from app.image_tools.transparency import make_color_transparent
+from app.image_tools.cropper import crop_image
 
 from fastapi.responses import Response
 
@@ -258,4 +259,68 @@ async def preview_transparent_image(
     return Response(
         content=result_bytes,
         media_type="image/png",
+    )
+
+@router.post("/crop")
+async def crop_uploaded_image(
+    file: UploadFile = File(...),
+    x: int = 0,
+    y: int = 0,
+    width: int = 100,
+    height: int = 100,
+):
+    if width <= 0 or height <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Bredd och höjd måste vara större än 0.",
+        )
+
+    image_bytes = await file.read()
+
+    try:
+        cropped_bytes, output_format = crop_image(
+            image_bytes=image_bytes,
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            )
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Kunde inte beskära bilden.",
+        )
+
+    original_name = file.filename or "image"
+
+    filename_without_extension = (
+        original_name.rsplit(".", 1)[0]
+    )
+
+    if output_format == "WEBP":
+        extension = "webp"
+        media_type = "image/webp"
+
+    elif output_format == "JPEG":
+        extension = "jpg"
+        media_type = "image/jpeg"
+
+    else:
+        extension = "png"
+        media_type = "image/png"
+
+
+    filename = (
+        f"{filename_without_extension}-cropped.{extension}"
+    )
+
+
+    return Response(
+        content=cropped_bytes,
+        media_type=media_type,
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="{filename}"'
+        },
     )

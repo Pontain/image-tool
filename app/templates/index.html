@@ -8,6 +8,7 @@
     <title>Image Tool</title>
 
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
 </head>
 
 <body>
@@ -174,6 +175,8 @@
 
                             </div>
 
+
+
                             <label for="qualitySlider">
                                 Kvalitet
                             </label>
@@ -187,6 +190,57 @@
                                 </strong>
 
                             </div>
+
+                        </div>
+
+                        <div class="crop-tools">
+
+                            <h3>Beskär bild</h3>
+
+                            <div class="crop-control">
+
+                                <span class="crop-label">
+                                    Proportion
+                                </span>
+
+                                <div class="crop-ratios">
+
+                                    <button type="button" class="crop-ratio active" data-ratio="free">
+                                        Fri
+                                    </button>
+
+                                    <button type="button" class="crop-ratio" data-ratio="1">
+                                        1:1
+                                    </button>
+
+                                    <button type="button" class="crop-ratio" data-ratio="1.333333">
+                                        4:3
+                                    </button>
+
+                                    <button type="button" class="crop-ratio" data-ratio="1.777778">
+                                        16:9
+                                    </button>
+
+                                </div>
+
+                                <div class="crop-size">
+                                    <span>Vald storlek</span>
+                                    <strong id="cropSize">-</strong>
+                                </div>
+
+                            </div>
+
+                            <button type="button" id="startCrop" class="secondary-action-button">
+                                Starta beskärning
+                            </button>
+
+                            <button type="button" id="cancelCrop" class="secondary-action-button hidden">
+                                Avbryt beskärning
+                            </button>
+
+                            <button type="button" id="downloadCrop" class="primary-button hidden">
+                                Spara beskuren PNG
+                            </button>
 
                         </div>
 
@@ -228,6 +282,7 @@
 
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
     <script src="{{ url_for('static', path='js/app.js') }}"></script>
 
 </body>
