@@ -7,7 +7,7 @@ from PIL import Image
 from app.auth import COOKIE, hash_password
 from app.main import create_app
 
-ORIGIN = 'https://bilder.atlasdodo.com'
+ORIGIN = 'https://image-tool.atlasdodo.com'
 PASSWORD = 'test-password-long-enough'
 
 @pytest.fixture

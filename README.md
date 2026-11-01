@@ -1,6 +1,6 @@
 # Atlas & Dodo – Bildverktyg på Railway
 
-Förberedd för `https://bilder.atlasdodo.com`. Domänen är ett förslag och kan ändras.
+Förberedd för `https://image-tool.atlasdodo.com`. Domänen är ett förslag och kan ändras.
 Paketet är lokalt testat men inte publicerat. Railway-anslutning och DNS återstår.
 
 ## Vad som ingår
@@ -43,7 +43,7 @@ Lägg till följande under tjänstens Variables:
 | --- | --- |
 | `APP_USERNAME` | Ditt valda användarnamn, exempelvis `pontus` |
 | `APP_PASSWORD_HASH` | Hela värdet som börjar med `scrypt:` från steg 2 |
-| `PUBLIC_URL` | `https://bilder.atlasdodo.com` |
+| `PUBLIC_URL` | `https://image-tool.atlasdodo.com` |
 
 Låt Dockerfile sköta startkommandot. Den använder Railways `PORT`.
 Healthcheck är `/healthz`. Behåll **en replica och en worker**: sessioner och
@@ -57,11 +57,11 @@ inloggningsbegränsning först flyttas till gemensam lagring.
 
 ## 4. Subdomän i Cloudflare
 
-1. Lägg till `bilder.atlasdodo.com` som Custom Domain på den nya Railway-tjänsten.
+1. Lägg till `image-tool.atlasdodo.com` som Custom Domain på den nya Railway-tjänsten.
 2. Railway visar DNS-posterna som krävs. Kopiera exakt dess CNAME-mål och eventuell TXT-verifiering till Cloudflares DNS för atlasdodo.com.
 3. Använd DNS only för den nya CNAME-posten under första installationen. Ändra inte rotens, www:s eller studio:s DNS-poster.
 4. Vänta tills Railway har verifierat domänen och HTTPS-certifikatet är klart.
-5. Öppna `https://bilder.atlasdodo.com`, logga in och prova uppladdning/nedladdning samt Logga ut.
+5. Öppna `https://image-tool.atlasdodo.com`, logga in och prova uppladdning/nedladdning samt Logga ut.
 
 För test på Railways genererade domän: sätt tillfälligt `PUBLIC_URL` till exakt
 HTTPS-adressen du öppnar. Byt sedan tillbaka till subdomänen. Appen godtar POST
