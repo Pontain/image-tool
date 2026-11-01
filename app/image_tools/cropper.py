@@ -13,6 +13,8 @@ def crop_image(
 
     with Image.open(BytesIO(image_bytes)) as image:
 
+        if x < 0 or y < 0 or width <= 0 or height <= 0 or x + width > image.width or y + height > image.height:
+            raise ValueError("Crop must stay inside the image")
         original_format = image.format or "PNG"
 
         left = x

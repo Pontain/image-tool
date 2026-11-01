@@ -1,3 +1,5 @@
+from starlette.concurrency import run_in_threadpool
+from app.image_tools.validation import read_image, download_header
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.image_tools.analyzer import analyze_image
@@ -24,10 +26,10 @@ async def analyze_uploaded_image(
             detail="Filen måste vara en bild.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        image_info = analyze_image(image_bytes)
+        image_info = await run_in_threadpool(analyze_image, image_bytes)
 
     except Exception:
         raise HTTPException(
@@ -60,10 +62,10 @@ async def convert_uploaded_image_to_webp(
             detail="Filen måste vara en bild.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        webp_bytes = convert_to_webp(
+        webp_bytes = await run_in_threadpool(convert_to_webp, 
             image_bytes=image_bytes,
             quality=quality,
             method=6,
@@ -88,7 +90,7 @@ async def convert_uploaded_image_to_webp(
         media_type="image/webp",
         headers={
             "Content-Disposition":
-                f'attachment; filename="{output_filename}"'
+                download_header(output_filename)
         },
     )
 
@@ -111,10 +113,10 @@ async def preview_webp_conversion(
             detail="Filen måste vara en bild.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        webp_bytes = convert_to_webp(
+        webp_bytes = await run_in_threadpool(convert_to_webp, 
             image_bytes=image_bytes,
             quality=quality,
             method=0,
@@ -158,10 +160,10 @@ async def convert_uploaded_image_to_ico(
             detail="Filen måste vara en bild.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        ico_bytes = convert_to_ico(
+        ico_bytes = await run_in_threadpool(convert_to_ico, 
             image_bytes=image_bytes,
         )
 
@@ -186,7 +188,7 @@ async def convert_uploaded_image_to_ico(
         media_type="image/x-icon",
         headers={
             "Content-Disposition":
-                f'attachment; filename="{output_filename}"'
+                download_header(output_filename)
         },
     )
 
@@ -220,10 +222,10 @@ async def make_uploaded_image_transparent(
             detail="Ogiltig färg.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        result_bytes = make_color_transparent(
+        result_bytes = await run_in_threadpool(make_color_transparent, 
             image_bytes=image_bytes,
             target_color=target_color,
             tolerance=tolerance,
@@ -250,7 +252,7 @@ async def make_uploaded_image_transparent(
         media_type="image/png",
         headers={
             "Content-Disposition":
-                f'attachment; filename="{output_filename}"'
+                download_header(output_filename)
         },
     )
 
@@ -284,10 +286,10 @@ async def preview_transparent_image(
             detail="Ogiltig färg.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        result_bytes = make_color_transparent(
+        result_bytes = await run_in_threadpool(make_color_transparent, 
             image_bytes=image_bytes,
             target_color=target_color,
             tolerance=tolerance,
@@ -318,10 +320,10 @@ async def crop_uploaded_image(
             detail="Bredd och höjd måste vara större än 0.",
         )
 
-    image_bytes = await file.read()
+    image_bytes = await read_image(file)
 
     try:
-        cropped_bytes, output_format = crop_image(
+        cropped_bytes, output_format = await run_in_threadpool(crop_image, 
             image_bytes=image_bytes,
             x=x,
             y=y,
@@ -364,6 +366,6 @@ async def crop_uploaded_image(
         media_type=media_type,
         headers={
             "Content-Disposition":
-                f'attachment; filename="{filename}"'
+                download_header(filename)
         },
     )

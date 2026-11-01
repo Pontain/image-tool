@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logga in · Atlas & Dodo</title>
+<link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body><main class="login-card">
+<p class="brand">ATLAS & DODO</p><h1>Dina bilder,<br>redo för äventyr.</h1>
+<p class="intro">Logga in för att öppna bildverktyget.</p>
+<form action="/login" method="post">
+<label for="username">Användarnamn</label>
+<input id="username" name="username" autocomplete="username" required maxlength="128" autofocus>
+<label for="password">Lösenord</label>
+<input id="password" name="password" type="password" autocomplete="current-password" required maxlength="1024">
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<button type="submit">Logga in <span aria-hidden="true">→</span></button>
+</form><p class="footnote">Ett privat verktyg för Atlas & Dodo.</p>
+</main></body></html>

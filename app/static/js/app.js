@@ -1,3 +1,11 @@
+// Expired sessions return to the login page instead of showing a conversion error.
+const originalFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+    const response = await originalFetch(...args);
+    if (response.status === 401) window.location.assign('/login');
+    return response;
+};
+
 // ============================================================
 // IMAGE TOOL
 // Frontend logic for:
