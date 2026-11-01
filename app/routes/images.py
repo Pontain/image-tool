@@ -1,7 +1,7 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.image_tools.analyzer import analyze_image
-from app.image_tools.converter import convert_to_webp
+from app.image_tools.converter import convert_to_webp, convert_to_ico
 from app.image_tools.transparency import make_color_transparent
 from app.image_tools.cropper import crop_image
 
@@ -146,6 +146,49 @@ async def preview_webp_conversion(
         "saving_percent": round(saving_percent, 1),
         "quality": quality,
     }
+
+
+@router.post("/convert/ico")
+async def convert_uploaded_image_to_ico(
+    file: UploadFile = File(...),
+):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail="Filen måste vara en bild.",
+        )
+
+    image_bytes = await file.read()
+
+    try:
+        ico_bytes = convert_to_ico(
+            image_bytes=image_bytes,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Kunde inte konvertera bilden till ICO.",
+        )
+
+    original_name = file.filename or "image"
+
+    filename_without_extension = (
+        original_name.rsplit(".", 1)[0]
+    )
+
+    output_filename = (
+        f"{filename_without_extension}.ico"
+    )
+
+    return Response(
+        content=ico_bytes,
+        media_type="image/x-icon",
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="{output_filename}"'
+        },
+    )
 
 @router.post("/transparent")
 async def make_uploaded_image_transparent(

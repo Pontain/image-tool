@@ -62,6 +62,7 @@ const transparency = document.getElementById("transparency");
 const qualitySlider = document.getElementById("qualitySlider");
 const qualityValue = document.getElementById("qualityValue");
 const convertWebp = document.getElementById("convertWebp");
+const convertIco = document.getElementById("convertIco");
 
 const conversionResult = document.getElementById("conversionResult");
 const originalSizeResult = document.getElementById("originalSizeResult");
@@ -306,6 +307,66 @@ convertWebp.addEventListener("click", async () => {
     }
 });
 
+
+convertIco.addEventListener("click", async () => {
+    if (!currentFile) {
+        return;
+    }
+
+    const formData =
+        createImageFormData(currentFile);
+
+    setButtonLoading(
+        convertIco,
+        true,
+        "Skapar ICO..."
+    );
+
+    try {
+        const response = await fetch(
+            "/api/images/convert/ico",
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                "ICO-konverteringen misslyckades."
+            );
+        }
+
+        const blob =
+            await response.blob();
+
+        const filenameWithoutExtension =
+            getFilenameWithoutExtension(
+                currentFile.name
+            );
+
+        downloadBlob(
+            blob,
+            `${filenameWithoutExtension}.ico`
+        );
+    }
+
+    catch (error) {
+        console.error(error);
+
+        alert(
+            "Kunde inte konvertera bilden till ICO."
+        );
+    }
+
+    finally {
+        setButtonLoading(
+            convertIco,
+            false,
+            "Konvertera till ICO"
+        );
+    }
+});
 
 // ============================================================
 // 5. TRANSPARENCY EVENTS

@@ -60,3 +60,29 @@ def convert_to_webp(
         )
 
         return output.getvalue()
+
+
+def convert_to_ico(
+    image_bytes: bytes,
+) -> bytes:
+
+    with Image.open(BytesIO(image_bytes)) as image:
+
+        output = BytesIO()
+
+        image = image.convert("RGBA")
+
+        image.save(
+            output,
+            format="ICO",
+            sizes=[
+                (16, 16),
+                (32, 32),
+                (48, 48),
+                (64, 64),
+                (128, 128),
+                (256, 256),
+            ],
+        )
+
+        return output.getvalue()
