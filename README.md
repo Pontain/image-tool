@@ -1,99 +1,94 @@
 # Atlas & Dodo Image Tool
 
-A private image-processing utility for preparing artwork and game assets for the Atlas & Dodo project. It supports image analysis, WebP and ICO conversion, transparency handling, and cropping behind an authenticated interface. The service is configured for Railway and the `image-tool.atlasdodo.com` subdomain.
+An authenticated image-processing utility originally built to prepare artwork and game assets for the Atlas & Dodo project. It supports image analysis, WebP and ICO conversion, transparency handling, and cropping. The service is configured for Railway and the `image-tool.atlasdodo.com` subdomain.
 
-## Vad som ingår
+## Features and security
 
-- Befintliga funktioner: analys, WebP, ICO, transparens och beskärning.
-- Privat inloggningssida och Logga ut. Alla bild-API:er kräver inloggning.
-- Ett konto, utan registrering. Slumpmässiga sessioner på servern, max 12 timmar.
-- HttpOnly/Secure/SameSite-cookie, ursprungskontroll på POST och lösenordshash med scrypt.
-- Max 30 inloggningsförsök totalt per 15 minuter. Begränsningen gäller alla användare tillsammans.
-- PNG, JPEG och WebP; max 20 MiB och 16 miljoner pixlar. Endast förminskning, beskärning inom bilden.
-- Bilder bearbetas tillfälligt i minnet eller multipart-parserns temporära filer. Inget bildarkiv sparas.
+- Image analysis, WebP and ICO conversion, transparency handling, and cropping.
+- Login and logout. All image-processing APIs require authentication.
+- Single account with no self-service registration. Server-side sessions expire after 12 hours.
+- HttpOnly, Secure, and SameSite cookies; origin checks on POST requests; passwords hashed with scrypt.
+- A limit of 30 login attempts across all users in each 15-minute period.
+- Supports PNG, JPEG, and WebP files up to 20 MiB and 16 megapixels. Resizing only reduces image dimensions, and cropping is limited to the image boundaries.
+- Images are processed temporarily in memory or in multipart parser temporary files. No image archive is stored.
 
 ## 1. Repository and service
 
-The source lives in the private `Pontain/image-tool` repository. Deploy it as a dedicated Railway service from this repository; the Dockerfile, `requirements.txt`, `railway.json`, and `app/` directory are at the repository root.
+The source code is in the `Pontain/image-tool` repository. Deploy it as a dedicated Railway service from this repository. The Dockerfile, `requirements.txt`, `railway.json`, and `app/` directory are at the repository root.
 
-## 2. Välj inloggning lokalt
+## 2. Set up login locally
 
-Kör i PowerShell i projektmappen:
+Run these commands in PowerShell from the project directory:
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe make_password.py
+.\\.venv\\Scripts\\python.exe -m pip install -r requirements.txt
+.\\.venv\\Scripts\\python.exe make_password.py
 ```
 
-Du får skriva ett eget lösenord två gånger. Inmatningen syns inte i terminalen.
-Spara lösenordet i din lösenordshanterare. Kopiera den genererade hashen till Railway;
-lägg inte lösenord eller hash i GitHub eller i chatten.
-Python 3.12 är versionen som används i Docker och lokal testning.
+Enter your chosen password twice when prompted. The password will not be shown in the terminal.
 
-## 3. Railway configuration
+Save the password in your password manager. Copy the generated hash to Railway. Do not commit the password or hash to GitHub or share them in chat.
 
-The dedicated Railway service builds the app from the repository's Dockerfile.
-Lägg till följande under tjänstens Variables:
+Python 3.12 is the version used by the Docker image and for local testing.
 
-| Variabel | Värde |
+## 3. Configure Railway
+
+The dedicated Railway service builds the app from the repository's Dockerfile. Add the following variables under the service's **Variables**:
+
+| Variable | Value |
 | --- | --- |
-| `APP_USERNAME` | Ditt valda användarnamn, exempelvis `pontus` |
-| `APP_PASSWORD_HASH` | Hela värdet som börjar med `scrypt:` från steg 2 |
+| `APP_USERNAME` | Your chosen username, for example `pontus` |
+| `APP_PASSWORD_HASH` | The complete value beginning with `scrypt:` generated in step 2 |
 | `PUBLIC_URL` | `https://image-tool.atlasdodo.com` |
 
-Låt Dockerfile sköta startkommandot. Den använder Railways `PORT`.
-Healthcheck är `/healthz`. Behåll **en replica och en worker**: sessioner och
-inloggningsbegränsning finns i processminnet. Omstart/deploy loggar ut alla.
-Ingen databas eller persistent volume behövs för denna version.
+Let the Dockerfile provide the startup command. It uses Railway's `PORT` variable.
 
-Appen vägrar starta om inställningarna saknas eller lösenordshashen är felaktig.
-Vid byte av lösenord: generera ny hash, ändra variabeln och deploya om.
-Om fler separata användarkonton eller flera repliker behövs ska sessioner och
-inloggningsbegränsning först flyttas till gemensam lagring.
+The health check endpoint is `/healthz`. Keep **one replica and one worker** because sessions and login rate limiting are stored in process memory. A restart or deployment signs out all users.
 
-## 4. Subdomän i Cloudflare
+This version does not need a database or persistent volume.
 
-1. Lägg till `image-tool.atlasdodo.com` som Custom Domain på den nya Railway-tjänsten.
-2. Railway visar DNS-posterna som krävs. Kopiera exakt dess CNAME-mål och eventuell TXT-verifiering till Cloudflares DNS för atlasdodo.com.
-3. Använd DNS only för den nya CNAME-posten under första installationen. Ändra inte rotens, www:s eller studio:s DNS-poster.
-4. Vänta tills Railway har verifierat domänen och HTTPS-certifikatet är klart.
-5. Öppna `https://image-tool.atlasdodo.com`, logga in och prova uppladdning/nedladdning samt Logga ut.
+The app will not start if the required settings are missing or the password hash is invalid. To change the password, generate a new hash, update the variable, and redeploy.
 
-För test på Railways genererade domän: sätt tillfälligt `PUBLIC_URL` till exakt
-HTTPS-adressen du öppnar. Byt sedan tillbaka till subdomänen. Appen godtar POST
-endast från den konfigurerade adressen, så inloggning via en alternativ domän avvisas.
+If you need multiple user accounts or replicas, move session storage and login rate limiting to shared storage first.
 
-## Lokal körning
+## 4. Configure the Cloudflare subdomain
 
-Sätt de tre miljövariablerna i samma PowerShell-fönster:
+1. Add `image-tool.atlasdodo.com` as a custom domain on the new Railway service.
+2. Railway will show the required DNS records. Copy its exact CNAME target and any TXT verification record to the Cloudflare DNS settings for `atlasdodo.com`.
+3. Use **DNS only** for the new CNAME record during initial setup. Do not change the DNS records for the root domain, `www`, or `studio`.
+4. Wait for Railway to verify the domain and issue the HTTPS certificate.
+5. Open `https://image-tool.atlasdodo.com`, sign in, and test image upload and download, then sign out.
+
+To test with Railway's generated domain, temporarily set `PUBLIC_URL` to the exact HTTPS address you open. Change it back to the subdomain afterward. The app accepts POST requests only from the configured address, so signing in through another domain will be rejected.
+
+## Run locally
+
+Set the three environment variables in the same PowerShell window:
 
 ```powershell
 $env:APP_USERNAME = "pontus"
-$env:APP_PASSWORD_HASH = Read-Host "Klistra in din scrypt-hash"
+$env:APP_PASSWORD_HASH = Read-Host "Paste your scrypt hash"
 $env:PUBLIC_URL = "http://127.0.0.1:8000"
-.\.venv\Scripts\python.exe -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port 8000
+.\\.venv\\Scripts\\python.exe -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port 8000
 ```
 
-Öppna exakt `http://127.0.0.1:8000`. `.env.example` är en mall;
-appen läser miljövariabler, den laddar inte en `.env`-fil automatiskt.
-HTTPS krävs för andra adresser än localhost/127.0.0.1.
+Open exactly `http://127.0.0.1:8000`. The `.env.example` file is a template; the app reads environment variables and does not load a `.env` file automatically.
 
-## Tester och begränsningar
+HTTPS is required for addresses other than `localhost` and `127.0.0.1`.
+
+## Tests and limitations
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pytest tests -q
+.\\.venv\\Scripts\\python.exe -m pip install -r requirements-dev.txt
+.\\.venv\\Scripts\\python.exe -m pytest tests -q
 ```
 
-Tester täcker inloggning, utloggning och återspelning av utloggad cookie,
-förfalskad/utgången session, obehöriga API-anrop, origin-skydd,
-inloggningsbegränsning, bildoperationer och felaktiga indata/storleksgränser.
-Dockerbygge, Railway-deploy, riktig DNS/HTTPS och visuell webbläsartestning
-måste verifieras vid driftsättningen. Befintliga CropperJS-resurser laddas från
-jsDelivr; beskärningens gränssnitt behöver tillgång till denna CDN.
+The tests cover login, logout and replay of a logged-out cookie, forged or expired sessions, unauthorized API requests, origin protection, login rate limiting, image operations, invalid input, and file size limits.
 
-## Officiell dokumentation
+The Docker build, Railway deployment, live DNS and HTTPS, and visual browser testing must be verified during deployment. CropperJS assets are loaded from jsDelivr, so the cropping interface requires access to that CDN.
+
+## Official documentation
 
 - https://docs.railway.com/builds/dockerfiles
 - https://docs.railway.com/networking/domains/working-with-domains
