@@ -22,8 +22,8 @@ Run these commands in PowerShell from the project directory:
 
 ```powershell
 py -3.12 -m venv .venv
-.\\.venv\\Scripts\\python.exe -m pip install -r requirements.txt
-.\\.venv\\Scripts\\python.exe make_password.py
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe make_password.py
 ```
 
 Enter your chosen password twice when prompted. The password will not be shown in the terminal.
@@ -70,7 +70,7 @@ Set the three environment variables in the same PowerShell window:
 $env:APP_USERNAME = "pontus"
 $env:APP_PASSWORD_HASH = Read-Host "Paste your scrypt hash"
 $env:PUBLIC_URL = "http://127.0.0.1:8000"
-.\\.venv\\Scripts\\python.exe -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port 8000
+.\.venv\Scripts\python.exe -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port 8000
 ```
 
 Open exactly `http://127.0.0.1:8000`. The `.env.example` file is a template; the app reads environment variables and does not load a `.env` file automatically.
@@ -80,8 +80,8 @@ HTTPS is required for addresses other than `localhost` and `127.0.0.1`.
 ## Tests and limitations
 
 ```powershell
-.\\.venv\\Scripts\\python.exe -m pip install -r requirements-dev.txt
-.\\.venv\\Scripts\\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest tests -q
 ```
 
 The tests cover login, logout and replay of a logged-out cookie, forged or expired sessions, unauthorized API requests, origin protection, login rate limiting, image operations, invalid input, and file size limits.
