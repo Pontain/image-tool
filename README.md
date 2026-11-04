@@ -1,7 +1,6 @@
-# Atlas & Dodo – Bildverktyg på Railway
+# Atlas & Dodo Image Tool
 
-Förberedd för `https://image-tool.atlasdodo.com`. Domänen är ett förslag och kan ändras.
-Paketet är lokalt testat men inte publicerat. Railway-anslutning och DNS återstår.
+A private image-processing utility for preparing artwork and game assets for the Atlas & Dodo project. It supports image analysis, WebP and ICO conversion, transparency handling, and cropping behind an authenticated interface. The service is configured for Railway and the `image-tool.atlasdodo.com` subdomain.
 
 ## Vad som ingår
 
@@ -13,11 +12,9 @@ Paketet är lokalt testat men inte publicerat. Railway-anslutning och DNS åters
 - PNG, JPEG och WebP; max 20 MiB och 16 miljoner pixlar. Endast förminskning, beskärning inom bilden.
 - Bilder bearbetas tillfälligt i minnet eller multipart-parserns temporära filer. Inget bildarkiv sparas.
 
-## 1. Lägg upp projektet
+## 1. Repository and service
 
-Packa upp zipfilen till en egen projektmapp och öppna den i VS Code.
-`Dockerfile`, `requirements.txt`, `railway.json` och mappen `app/` ska ligga i repots rot.
-Lägg projektet i ett separat privat GitHub-repo. Lägg inte in det som ersättning för huvudwebbplatsen.
+The source lives in the private `Pontain/image-tool` repository. Deploy it as a dedicated Railway service from this repository; the Dockerfile, `requirements.txt`, `railway.json`, and `app/` directory are at the repository root.
 
 ## 2. Välj inloggning lokalt
 
@@ -34,9 +31,9 @@ Spara lösenordet i din lösenordshanterare. Kopiera den genererade hashen till 
 lägg inte lösenord eller hash i GitHub eller i chatten.
 Python 3.12 är versionen som används i Docker och lokal testning.
 
-## 3. Railway
+## 3. Railway configuration
 
-Skapa en separat tjänst från repot. Dockerfile bygger appen automatiskt.
+The dedicated Railway service builds the app from the repository's Dockerfile.
 Lägg till följande under tjänstens Variables:
 
 | Variabel | Värde |
